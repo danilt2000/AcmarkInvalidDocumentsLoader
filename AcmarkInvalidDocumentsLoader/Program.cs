@@ -46,17 +46,26 @@ namespace AcmarkInvalidDocumentsLoader
 
 			var entities = acmarkDataTransferClient.ApiWrapper.GetAllDocuments();
 
-			Task[] tasks = new Task[entities.value.Count];
+			Task[] tasks = new Task[entities.Count];
 
 			//Task[] tasks = new Task[100];
-
-			for (int i = 0; i < entities.value.Count; i++)
+			foreach (KeyValuePair<string, ValueListInvalidDocuments> entity in entities)
 			{
-				//tasks[i] = Task.Run(() => acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entities.value[i].acm_listinvaliddocumentid));
+				await acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entity.Key);
 
-				await acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entities.value[i].acm_listinvaliddocumentid);
+				// 'entry.Key' - ключ текущего элемента
+				// 'entry.Value' - значение текущего элемента
+				//	//tasks[i] = Task.Run(() => acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entities.value[i].acm_listinvaliddocumentid));
 
+				// Здесь можно добавить код для работы с ключом и значением.
 			}
+			//for (int i = 0; i < entities.value.Count; i++)
+			//{
+			//	//tasks[i] = Task.Run(() => acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entities.value[i].acm_listinvaliddocumentid));
+
+			//	//await acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entities.value[i].acm_listinvaliddocumentid);
+
+			//}
 
 
 			//for (int i = 0; i < 100; i++)

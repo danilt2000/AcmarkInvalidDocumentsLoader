@@ -11,11 +11,11 @@ namespace AcmarkInvalidDocumentsLoader.Services
 {
 	public class AcmarkDataTransferClient : IUploadService, IRemoverService
 	{
-		public ApiWrapper ApiWrapper { get; set; }
+		public AcmarkApiWrapper ApiWrapper { get; set; }
 
 		public AcmarkDataTransferClient(string mvcInvalidDocumentsWebLink)
 		{
-			ApiWrapper = new ApiWrapper(mvcInvalidDocumentsWebLink);
+			ApiWrapper = new AcmarkApiWrapper(mvcInvalidDocumentsWebLink);
 		}
 		public async Task<Response> UploadContentAsync(string documentNumber, string batch, string documentType, DateTime invalidationdate)
 		{
@@ -26,7 +26,7 @@ namespace AcmarkInvalidDocumentsLoader.Services
 			return null;
 		}
 
-		public RootListInvalidDocuments GetAllDocuments()
+		public Dictionary<string, ValueListInvalidDocuments> GetAllDocuments()
 		{
 			var entities = ApiWrapper.GetAllDocuments();
 
