@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace AcmarkInvalidDocumentsLoader.Services
 {
@@ -16,14 +17,24 @@ namespace AcmarkInvalidDocumentsLoader.Services
 		{
 			ApiWrapper = new ApiWrapper(mvcInvalidDocumentsWebLink);
 		}
-		public Task<Response> UploadContentAsync(string documentNumber, string batch, string documentType, DateTime invalidationdate)
+		public async Task<Response> UploadContentAsync(string documentNumber, string batch, string documentType, DateTime invalidationdate)
 		{
-			ApiWrapper.AddInvalidDocumentAsync(documentNumber, batch, documentType, invalidationdate);
+			await ApiWrapper.AddDocumentAsync(documentNumber, batch, documentType, invalidationdate);
+
+			//SOME CONTOLLING DATE AND LOGING IF NULL
 
 			return null;
 		}
 
-		public Task<Response> RemoveContentAsync(string documentNumber)
+		public RootListInvalidDocuments GetAllDocuments()
+		{
+			var entities = ApiWrapper.GetAllDocuments();
+
+			//SOME CONTOLLING DATE AND LOGING IF NULL
+
+			return entities;
+		}
+		public Task<Response> RemoveContentAsync(string documentId)
 		{
 
 

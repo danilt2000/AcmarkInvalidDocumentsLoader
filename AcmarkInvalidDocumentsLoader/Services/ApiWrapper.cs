@@ -7,12 +7,14 @@ using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AcmarkInvalidDocumentsLoader.Services
 {
 	public class ApiWrapper
 	{
+		private static SemaphoreSlim semaphore = new SemaphoreSlim(5);
 		public ApiWrapper(string baseUrl)
 		{
 			System.Net.ServicePointManager.ServerCertificateValidationCallback +=
@@ -38,11 +40,13 @@ namespace AcmarkInvalidDocumentsLoader.Services
 			this.Client = new RestClient(options);
 		}
 
-		public void AddInvalidDocumentAsync(string documentNumber, string batch, string documentType, DateTime invalidationdate)
+		public async Task AddDocumentAsync(string documentNumber, string batch, string documentType, DateTime invalidationdate)
 		{
-			Stopwatch stopWatch = new Stopwatch();
-			stopWatch.Start();
-			var request = new RestRequest("acm_listinvaliddocuments")
+			await semaphore.WaitAsync();
+
+			try
+			{
+				var request = new RestRequest("acm_listinvaliddocuments")
 				 .AddJsonBody(new
 				 {
 					 acm_documentnumber = documentNumber,
@@ -50,23 +54,27 @@ namespace AcmarkInvalidDocumentsLoader.Services
 					 acm_documenttype = documentType,
 					 acm_invalidationdate = invalidationdate
 				 });
-			//var request = new RestRequest("acm_listinvaliddocuments")
-			//	 .AddJsonBody(new Dictionary<string, object>
-			//	 {
-			//		{ "acm_documentnumber", documentNumber },
-			//		{ "acm_batch", batch },
-			//		{ "acm_documenttype", documentType },
-			//		{ "acm_invalidationdate", invalidationdate }
-			//	  });
-			//request.AddHeader("Cookie", "ReqClientId=96b84521-58c3-46a6-a7cc-d58ff34e2678");
-			//request.AddHeader("Content-Type", "application/json");
-			var test = Client.Post(request);
 
-			stopWatch.Stop();
-			Console.Write("gdfgf");
+				var test = await Client.PostAsync(request);
+			}
+			finally
+			{
+				semaphore.Release();
+			}
 
 			//return await Client.PostAsync(request);
 		}
+		public RootListInvalidDocuments? GetAllDocuments()
+		{
+			var request = new RestRequest("acm_listinvaliddocuments");
+
+			var test = Client.Get(request);
+
+			RootListInvalidDocuments entities = JsonSerializer.Deserialize<RootListInvalidDocuments>(test.Content);
+
+			return entities;
+		}
+
 
 		private RestClient Client
 		{

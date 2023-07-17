@@ -12,23 +12,56 @@ using System.ServiceModel.Channels;
 using System.ServiceModel;
 using System.ServiceModel.Security;
 using AcmarkInvalidDocumentsLoader.Models;
+using System.Diagnostics;
+using System;
 
 namespace AcmarkInvalidDocumentsLoader
 {
 	internal class Program
 	{
+		private static Random random = new Random();
 
+		public static string RandomString(int length)
+		{
+			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+			return new string(Enumerable.Repeat(chars, length)
+			    .Select(s => s[random.Next(s.Length)]).ToArray());
+		}
 
 		static async Task Main(string[] args)
 		{
 
-			Random rnd = new Random();
-			int value = rnd.Next(0, 99999);
+
+
+			Stopwatch stopWatch = new Stopwatch();
+
+
+
+			Task[] tasks = new Task[100];
+			stopWatch.Start();
+
+			//Random rnd = new Random();
+
+			//int value;
+
 			AcmarkDataTransferClient acmarkDataTransferClient = new AcmarkDataTransferClient(ConfigurationLinks.DevAcmarkEuApiLink);
 
-			var responce = acmarkDataTransferClient.UploadContentAsync(value.ToString(), "AAAA", DocumentType.OpWithSeries, DateTime.Now);
+			//acmarkDataTransferClient.RemoveAllContentAsync();
+
+			for (int i = 0; i < 100; i++)
+			{
+
+				tasks[i] = Task.Run(() => acmarkDataTransferClient.UploadContentAsync(RandomString(6), "AAAA", DocumentType.OpWithSeries, DateTime.Now));
+			}
+
+			Task.WaitAll(tasks);
+
+
 			//ServicePointManager.ServerCertificateValidationCallback = delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 			//{
+			stopWatch.Stop();
+
+			Console.Write("gdfgf");
 			//	return true;
 			//};
 
