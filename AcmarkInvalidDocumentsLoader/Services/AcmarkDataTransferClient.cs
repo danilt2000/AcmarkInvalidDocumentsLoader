@@ -34,14 +34,14 @@ namespace AcmarkInvalidDocumentsLoader.Services
 
 			return entities;
 		}
-		public Task<Response> RemoveContentAsync(string documentId)
+		public async Task<Response> RemoveContentAsync(string documentId)
 		{
 
+			await ApiWrapper.RemoveDocumentAsync(documentId);
 
+			//SOME CONTOLLING DATE AND LOGING IF NULL
 
-
-
-			throw new NotImplementedException();
+			return null;
 		}
 
 	}

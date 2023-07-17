@@ -37,102 +37,42 @@ namespace AcmarkInvalidDocumentsLoader
 
 
 
-			Task[] tasks = new Task[100];
+
 			stopWatch.Start();
 
-			//Random rnd = new Random();
-
-			//int value;
 
 			AcmarkDataTransferClient acmarkDataTransferClient = new AcmarkDataTransferClient(ConfigurationLinks.DevAcmarkEuApiLink);
 
-			//acmarkDataTransferClient.RemoveAllContentAsync();
 
-			for (int i = 0; i < 100; i++)
+			var entities = acmarkDataTransferClient.ApiWrapper.GetAllDocuments();
+
+			Task[] tasks = new Task[entities.value.Count];
+
+			//Task[] tasks = new Task[100];
+
+			for (int i = 0; i < entities.value.Count; i++)
 			{
+				//tasks[i] = Task.Run(() => acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entities.value[i].acm_listinvaliddocumentid));
 
-				tasks[i] = Task.Run(() => acmarkDataTransferClient.UploadContentAsync(RandomString(6), "AAAA", DocumentType.OpWithSeries, DateTime.Now));
+				await acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entities.value[i].acm_listinvaliddocumentid);
+
 			}
 
-			Task.WaitAll(tasks);
 
-
-			//ServicePointManager.ServerCertificateValidationCallback = delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+			//for (int i = 0; i < 100; i++)
 			//{
+
+			//	//await acmarkDataTransferClient.UploadContentAsync(RandomString(6), "AAAA", DocumentType.OpWithSeries, DateTime.Now);
+			//	tasks[i] = Task.Run(() => acmarkDataTransferClient.UploadContentAsync(RandomString(6), "AAAA", DocumentType.OpWithSeries, DateTime.Now));
+			//}
+
+			//Task.WaitAll(tasks);
+
+
+
 			stopWatch.Stop();
 
 			Console.Write("gdfgf");
-			//	return true;
-			//};
-
-			//System.Net.ServicePointManager.ServerCertificateValidationCallback +=
-			// (se, cert, chain, sslerror) =>
-			// {
-			//	 return true;
-			// };
-			//HttpClientHandler clientHandler = new HttpClientHandler();
-			//clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
-			//{
-			//	return true;
-			//};
-
-			////var binding = new WSHttpBinding();
-			////binding.Security.Mode = SecurityMode.TransportWithMessageCredential;
-			////binding.Security.Message.ClientCredentialType = MessageCredentialType.Windows;
-
-			//var binding = new CustomBinding();
-
-			//binding.Elements.Add(new TextMessageEncodingBindingElement());
-
-			//binding.Elements.Add(new HttpsTransportBindingElement());
-
-			//var endpoint = new EndpointAddress("https://dev.acmark.eu:5555/ACMARK/XRMServices/2011/Organization.svc?wsdl");
-
-			//var basicHttpBinding = new BasicHttpBinding(
-			//      BasicHttpSecurityMode.TransportWithMessageCredential);
-			//basicHttpBinding.Security.Message.ClientCredentialType =
-			//				     BasicHttpMessageCredentialType.UserName;
-
-			//var client = new OrganizationServiceClient(binding, endpoint);
-
-			//client.ClientCredentials.ServiceCertificate.SslCertificateAuthentication =
-			//new X509ServiceCertificateAuthentication()
-			//{
-			//	CertificateValidationMode = X509CertificateValidationMode.None,
-			//	RevocationMode = System.Security.Cryptography.X509Certificates.X509RevocationMode.NoCheck
-			//};
-
-			//client.ClientCredentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
-
-			//client.ClientCredentials.UserName.UserName = "acmark\\tkachenko";
-
-			//client.ClientCredentials.UserName.Password = "wWGwqgov5hkQ";
-
-			//client.ClientCredentials.Windows.ClientCredential.UserName = "acmark\\tkachenko";
-
-			//client.ClientCredentials.Windows.ClientCredential.Password = "wWGwqgov5hkQ";
-
-			//client.Open();
-
-			//Entity invalidDocument = new Entity();
-
-			//invalidDocument.Attributes = new AttributeCollection();
-
-			//invalidDocument.LogicalName = "acm_listinvaliddocument";
-
-			//KeyValuePair<string, object> keyValuePairInvalidDate = new KeyValuePair<string, object>("acm_invalidationdate", DateTime.Now.ToString());
-
-			//KeyValuePair<string, object> keyValuePairDocumentNumber = new KeyValuePair<string, object>("acm_documentnumber", 412);
-
-			//invalidDocument.Attributes.Add(keyValuePairInvalidDate);
-
-			//invalidDocument.Attributes.Add(keyValuePairDocumentNumber);
-
-			//invalidDocument.Id = Guid.NewGuid();
-
-			//client.Create(invalidDocument);
-			//client.Close();
-
 
 
 			var neco = ConfigurationManager.AppSettings["MvcInvalidDocumentsWebLink"];

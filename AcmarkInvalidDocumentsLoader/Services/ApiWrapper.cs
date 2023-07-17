@@ -9,28 +9,26 @@ using System.Security.Authentication;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace AcmarkInvalidDocumentsLoader.Services
 {
 	public class ApiWrapper
 	{
-		private static SemaphoreSlim semaphore = new SemaphoreSlim(5);
+		private static SemaphoreSlim semaphore = new SemaphoreSlim(10);
+
+		private const string ConstListInvalidDocumentsApiPoint = "acm_listinvaliddocuments";
+
 		public ApiWrapper(string baseUrl)
 		{
 			System.Net.ServicePointManager.ServerCertificateValidationCallback +=
 (sender, certificate, chain, sslPolicyErrors) => true;
-			//var handler = new HttpClientHandler()
-			//{
-			//	ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
-			//	SslProtocols = SslProtocols.Tls12
-			//};
-			//var credentials = new NetworkCredential("acmark\\tkachenko", "wWGwqgov5hkQ",);
 
 			var options = new RestClientOptions(baseUrl)
 			{
 				Credentials = new NetworkCredential("acmark\\tkachenko", "wWGwqgov5hkQ"),
+
 				UseDefaultCredentials = false,
-				//HttpMessageHandler = handler,
 
 				RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
 
@@ -46,7 +44,7 @@ namespace AcmarkInvalidDocumentsLoader.Services
 
 			try
 			{
-				var request = new RestRequest("acm_listinvaliddocuments")
+				var request = new RestRequest(ApiWrapper.ConstListInvalidDocumentsApiPoint)
 				 .AddJsonBody(new
 				 {
 					 acm_documentnumber = documentNumber,
@@ -55,8 +53,11 @@ namespace AcmarkInvalidDocumentsLoader.Services
 					 acm_invalidationdate = invalidationdate
 				 });
 
-				var test = await Client.PostAsync(request);
+				var responce = await Client.PostAsync(request);
+
+				Console.Write(responce.Content.ToString());
 			}
+
 			finally
 			{
 				semaphore.Release();
@@ -66,7 +67,7 @@ namespace AcmarkInvalidDocumentsLoader.Services
 		}
 		public RootListInvalidDocuments? GetAllDocuments()
 		{
-			var request = new RestRequest("acm_listinvaliddocuments");
+			var request = new RestRequest(ApiWrapper.ConstListInvalidDocumentsApiPoint);
 
 			var test = Client.Get(request);
 
@@ -75,6 +76,24 @@ namespace AcmarkInvalidDocumentsLoader.Services
 			return entities;
 		}
 
+		public async Task RemoveDocumentAsync(string documentId)
+		{
+			semaphore.Wait();
+
+			try
+			{
+				var request = new RestRequest($"{ApiWrapper.ConstListInvalidDocumentsApiPoint}({documentId})");
+
+				var responce = await Client.DeleteAsync(request);
+
+				Console.Write(responce.Content.ToString());
+			}
+
+			finally
+			{
+				semaphore.Release();
+			}
+		}
 
 		private RestClient Client
 		{
