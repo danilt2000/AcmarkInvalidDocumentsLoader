@@ -18,7 +18,7 @@ namespace AcmarkInvalidDocumentsLoader.Services
 		}
 		public Task<Response> UploadContentAsync(string documentNumber, string batch, string documentType, DateTime invalidationdate)
 		{
-			var responce = ApiWrapper.AddInvalidDocumentAsync(documentNumber, batch, documentType, invalidationdate);
+			ApiWrapper.AddInvalidDocumentAsync(documentNumber, batch, documentType, invalidationdate);
 
 			return null;
 		}

@@ -12,5 +12,7 @@ namespace AcmarkInvalidDocumentsLoader.Models
 		public static readonly string MvcInvalidDocumentsWebLink = ConfigurationManager.AppSettings["MvcInvalidDocumentsWebLink"];
 
 		public static readonly string OpVseFileLink = ConfigurationManager.AppSettings["OpVseFileLink"];
+
+		public static readonly string DevAcmarkEuApiLink = ConfigurationManager.AppSettings["DevAcmarkEuApiLink"];
 	}
 }

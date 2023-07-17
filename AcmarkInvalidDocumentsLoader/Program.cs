@@ -22,9 +22,11 @@ namespace AcmarkInvalidDocumentsLoader
 		static async Task Main(string[] args)
 		{
 
-			AcmarkDataTransferClient acmarkDataTransferClient = new AcmarkDataTransferClient(ConfigurationLinks.MvcInvalidDocumentsWebLink);
+			Random rnd = new Random();
+			int value = rnd.Next(0, 99999);
+			AcmarkDataTransferClient acmarkDataTransferClient = new AcmarkDataTransferClient(ConfigurationLinks.DevAcmarkEuApiLink);
 
-			var responce = acmarkDataTransferClient.UploadContentAsync("4242", "41421", DocumentType.OpWithSeries, DateTime.Now);
+			var responce = acmarkDataTransferClient.UploadContentAsync(value.ToString(), "AAAA", DocumentType.OpWithSeries, DateTime.Now);
 			//ServicePointManager.ServerCertificateValidationCallback = delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 			//{
 			//	return true;
