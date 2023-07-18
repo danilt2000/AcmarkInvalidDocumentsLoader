@@ -14,22 +14,59 @@ using System.ServiceModel.Security;
 using AcmarkInvalidDocumentsLoader.Models;
 using System.Diagnostics;
 using System;
+using Quartz.Util;
+using System.Globalization;
 
 namespace AcmarkInvalidDocumentsLoader
 {
 	internal class Program
 	{
-		private static Random random = new Random();
-
-		public static string RandomString(int length)
-		{
-			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-			return new string(Enumerable.Repeat(chars, length)
-			    .Select(s => s[random.Next(s.Length)]).ToArray());
-		}
+		//private static Random random = new Random();
+		private static Stopwatch StopWatch = new Stopwatch();
+		public static Task[] Tasks { get; set; }
+		//public static Task[] Tasks = new Task[100];
 
 		static async Task Main(string[] args)
 		{
+
+
+
+			Console.WriteLine("\n\n===================================================");
+			Console.WriteLine($"======   Starting download of '{ConfigurationLinks.OpVseFileLink}'   ======");
+			Console.WriteLine($"======   Source: {ConfigurationLinks.OpVseFileLink}                 ======");
+			Console.WriteLine("===================================================\n\n");
+
+			var OpVseFileText = await DownloadService.DownloadFileContentAsync($"{ConfigurationLinks.OpVseFileLink}");
+
+			Dictionary<string, DateTime?> splitOpVseContent = OpVseFileText
+							.Split("\r\n")
+							.Select(item => item.Trim().Split(new[] { ';' }, 2))
+							.ToDictionary(parts => parts[0].Trim(),
+							parts =>
+							{
+								DateTime date;
+								return parts.Length > 1 && DateTime.TryParseExact(parts[1].Trim(), "d.M.yyyy",
+								CultureInfo.InvariantCulture, DateTimeStyles.None, out date) ? date : (DateTime?)null;
+							});
+			int index = 0;
+			var temp = DateTime.Now;
+			Tasks = new Task[splitOpVseContent.Count];
+
+			foreach (KeyValuePair<string, DateTime?> entity in splitOpVseContent)
+			{
+				//Tasks[index] = Task.Run(() => DataTransferClient.UploadContentAsync(entity.Key, string.Empty, DocumentType.OpWithoutSeries, entity.Value));
+				await DataTransferClient.UploadContentAsync(entity.Key, string.Empty, DocumentType.OpWithoutSeries, entity.Value);
+
+				index++;
+			}
+
+			Task.WaitAll(Tasks);
+
+			Console.WriteLine("\n\n===================================================");
+			Console.WriteLine($"======   Successfully downloaded '{ConfigurationLinks.OpVseFileLink}'  ======");
+			Console.WriteLine($"======   from: {ConfigurationLinks.OpVseFileLink}                    ======");
+			Console.WriteLine("===================================================\n\n");
+
 
 
 
@@ -205,7 +242,16 @@ namespace AcmarkInvalidDocumentsLoader
 
 		private static MvcrDownloader? _DownloadService;
 
+		static AcmarkDataTransferClient DataTransferClient
+		{
+			get
+			{
+				_DataTransferClient ??= new AcmarkDataTransferClient(ConfigurationLinks.DevAcmarkEuApiLink);
+				return _DataTransferClient;
+			}
+		}
 
+		private static AcmarkDataTransferClient? _DataTransferClient;
 	}
 	public class HelloJob : IJob
 	{

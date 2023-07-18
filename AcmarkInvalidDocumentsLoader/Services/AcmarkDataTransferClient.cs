@@ -17,9 +17,12 @@ namespace AcmarkInvalidDocumentsLoader.Services
 		{
 			ApiWrapper = new AcmarkApiWrapper(mvcInvalidDocumentsWebLink);
 		}
-		public async Task<Response> UploadContentAsync(string documentNumber, string batch, string documentType, DateTime invalidationdate)
+		public async Task<Response> UploadContentAsync(string documentNumber, string batch, string documentType, DateTime? invalidationdate)
 		{
-			await ApiWrapper.AddDocumentAsync(documentNumber, batch, documentType, invalidationdate);
+			if (invalidationdate == null)
+				invalidationdate = DateTime.MinValue;
+
+			await ApiWrapper.AddDocumentAsync(documentNumber, batch, documentType, (DateTime)invalidationdate);
 
 			//SOME CONTOLLING DATE AND LOGING IF NULL
 

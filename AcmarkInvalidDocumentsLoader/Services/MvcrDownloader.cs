@@ -95,10 +95,6 @@ namespace AcmarkInvalidDocumentsLoader.Services
 				using (var streamReader = new StreamReader(entryMemoryStream))
 				{
 					return await streamReader.ReadToEndAsync();
-
-					//string[] splitContent = fileContent.Split("\r\n", StringSplitOptions.RemoveEmptyEntries)
-					//			.Select(item => item.Trim())
-					//			.ToArray();
 				}
 			}
 		}

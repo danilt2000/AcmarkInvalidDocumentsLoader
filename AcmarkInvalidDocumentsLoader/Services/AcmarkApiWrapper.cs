@@ -41,6 +41,8 @@ namespace AcmarkInvalidDocumentsLoader.Services
 		public async Task AddDocumentAsync(string documentNumber, string batch, string documentType, DateTime invalidationdate)
 		{
 			await Semaphore.WaitAsync();
+			var temp = DateTime.Now;
+			invalidationdate = DateTime.SpecifyKind(invalidationdate, DateTimeKind.Local);
 
 			try
 			{
