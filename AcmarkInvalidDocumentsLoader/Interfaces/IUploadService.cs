@@ -9,6 +9,6 @@ namespace AcmarkInvalidDocumentsLoader.Interfaces
 {
 	public interface IUploadService
 	{
-		Task<Response> UploadContentAsync(string documentNumber, string batch, string documentType, DateTime? invalidationdate);
+		Task UploadContentAsync(string documentNumber, string batch, string documentType, DateTime? invalidationdate);
 	}
 }

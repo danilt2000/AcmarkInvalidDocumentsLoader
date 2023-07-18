@@ -24,12 +24,12 @@ namespace AcmarkInvalidDocumentsLoader.Services
 				return fileContent.PlusFileContent;
 
 			else
-				ErrorLog(fileDocumentHref);
+				FileErrorLog(fileDocumentHref);
 
 			return string.Empty;
 		}
 
-		private void ErrorLog(string fileDocumentHref)
+		private void FileErrorLog(string fileDocumentHref)
 		{
 			Console.WriteLine($"Failed failed to download in {nameof(MvcrDownloader)} file from {MvcInvalidDocumentsWebLink}{fileDocumentHref}");//error logging to the ACMARK Api service 
 

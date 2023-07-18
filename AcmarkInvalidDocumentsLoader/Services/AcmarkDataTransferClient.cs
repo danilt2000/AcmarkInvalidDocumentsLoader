@@ -17,33 +17,20 @@ namespace AcmarkInvalidDocumentsLoader.Services
 		{
 			ApiWrapper = new AcmarkApiWrapper(mvcInvalidDocumentsWebLink);
 		}
-		public async Task<Response> UploadContentAsync(string documentNumber, string batch, string documentType, DateTime? invalidationdate)
+		public async Task UploadContentAsync(string documentNumber, string batch, string documentType, DateTime? invalidationdate)
 		{
-
 			await ApiWrapper.AddDocumentAsync(documentNumber, batch, documentType, invalidationdate);
-
-			//SOME CONTOLLING DATE AND LOGING IF NULL
-
-			return null;
 		}
 
 		public Dictionary<string, ValueListInvalidDocuments> GetAllDocuments()
 		{
 			var entities = ApiWrapper.GetAllDocuments();
 
-			//SOME CONTOLLING DATE AND LOGING IF NULL
-
 			return entities;
 		}
-		public async Task<Response> RemoveContentAsync(string documentId)
+		public async Task RemoveContentAsync(string documentId)
 		{
-
 			await ApiWrapper.RemoveDocumentAsync(documentId);
-
-			//SOME CONTOLLING DATE AND LOGING IF NULL
-
-			return null;
 		}
-
 	}
 }

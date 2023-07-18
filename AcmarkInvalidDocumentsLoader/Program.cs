@@ -4,7 +4,6 @@ using System.Configuration;
 using AcmarkInvalidDocumentsLoader.Services;
 using Quartz.Impl;
 using Quartz;
-using AcmarkService;
 using System.Net.Security;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
@@ -22,12 +21,13 @@ namespace AcmarkInvalidDocumentsLoader
 {
 	internal class Program
 	{
-		//private static Random random = new Random();
 		private static Stopwatch PerformanceMonitor = new Stopwatch();
 		public static Task[] Tasks { get; set; }
 
 		static async Task Main(string[] args)
 		{
+
+
 			//PerformanceMonitor.Start();
 
 			//Console.WriteLine("\n\n    ===================================================");
@@ -95,7 +95,7 @@ namespace AcmarkInvalidDocumentsLoader
 
 
 
-			//await DeleteAllInvalidDocuments();
+			await DeleteAllInvalidDocuments();
 
 
 
@@ -107,7 +107,7 @@ namespace AcmarkInvalidDocumentsLoader
 			//Console.WriteLine($"         Source: {nameof(ConfigurationLinks.OpsVseFileLink)}");
 			//Console.WriteLine("    ===================================================");
 
-			//var OpVseContent = await DownloadSingleFile(ConfigurationLinks.OpsVseFileLink.ToString().ToString());
+			//var OpVseContent = await DownloadSingleFile(ConfigurationLinks.OpsVseFileLink.ToString());
 
 			//Dictionary<string, ValueListInvalidDocuments> splitOpVseContent = InitThreeRowsFileDictionary(OpVseContent);
 
@@ -127,14 +127,83 @@ namespace AcmarkInvalidDocumentsLoader
 
 
 
+			//Console.WriteLine("\n\n    ===================================================");
+			//Console.WriteLine($"         Starting download of '{ConfigurationLinks.MvcInvalidDocumentsWebLink}'");
+			//Console.WriteLine($"         Source: {nameof(ConfigurationLinks.OpsDifference)}");
+			//Console.WriteLine("    ===================================================");
+
+			//var entities = await DownloadDifferenceFile(ConfigurationLinks.OpsDifference.ToString());
+
+			//Dictionary<string, ValueListInvalidDocuments> splitOpPlusFileContent = InitThreeRowsFileDictionary(entities.PlusFileContent);
+
+			//UploadFile(splitOpPlusFileContent, DocumentType.OpWithSeries);
+
+			//Task.WaitAll(Tasks);
+
+			//Dictionary<string, ValueListInvalidDocuments> splitOpMinusFileContent = InitThreeRowsFileDictionary(entities.MinusFileContent);
+
+			//foreach (KeyValuePair<string, ValueListInvalidDocuments?> entity in splitOpMinusFileContent)
+			//{
+			//	await DataTransferClient.RemoveContentAsync(entity.Value.acm_listinvaliddocumentid);
+			//}
+
+			//Task.WaitAll(Tasks);
+
+			//Console.WriteLine($"         Upload is over");
+			//Console.WriteLine($"         Time spent '{PerformanceMonitor.Elapsed}'");
+			//Console.WriteLine("    ===================================================\n\n");
+
+			//PerformanceMonitor.Restart();
+
+
+
+			//PerformanceMonitor.Start();
+
+			//Console.WriteLine("\n\n    ===================================================");
+			//Console.WriteLine($"         Starting download of '{ConfigurationLinks.MvcInvalidDocumentsWebLink}'");
+			//Console.WriteLine($"         Source: {nameof(ConfigurationLinks.CdVseFileLink)}");
+			//Console.WriteLine("    ===================================================");
+
+			//var CdVseContent = await DownloadSingleFile(ConfigurationLinks.CdVseFileLink.ToString());
+
+			//Dictionary<string, DateTime?> splitCdVseContent = InitTwoRowsFileDictionary(CdVseContent);
+
+			//UploadFile(splitCdVseContent, DocumentType.PassportPurple);
+
+			//Task.WaitAll(Tasks);
+
+			//Console.WriteLine($"         Upload is over");
+			//Console.WriteLine($"         Time spent '{PerformanceMonitor.Elapsed}'");
+			//Console.WriteLine("    ===================================================\n\n");
 
 
 
 
+			PerformanceMonitor.Restart();
 
+			Console.WriteLine("\n\n    ===================================================");
+			Console.WriteLine($"         Starting download of '{ConfigurationLinks.MvcInvalidDocumentsWebLink}'");
+			Console.WriteLine($"         Source: {nameof(ConfigurationLinks.CdDifference)}");
+			Console.WriteLine("    ===================================================");
 
+			var entitiesCd = await DownloadDifferenceFile(ConfigurationLinks.CdDifference.ToString());
 
+			Dictionary<string, DateTime?> splitCdPlusFileContent = InitTwoRowsFileDictionary(entitiesCd.PlusFileContent);
 
+			UploadFile(splitCdPlusFileContent, DocumentType.PassportPurple);
+
+			Task.WaitAll(Tasks);
+
+			Dictionary<string, DateTime?> splitCdMinusFileContent = InitTwoRowsFileDictionary(entitiesCd.MinusFileContent);
+
+			foreach (KeyValuePair<string, DateTime?> entity in splitCdMinusFileContent)
+			{
+				await DataTransferClient.RemoveContentAsync(entity.Key);
+			}
+
+			Console.WriteLine($"         Upload and deleting is over");
+			Console.WriteLine($"         Time spent '{PerformanceMonitor.Elapsed}'");
+			Console.WriteLine("    ===================================================\n\n");
 
 
 
@@ -174,50 +243,50 @@ namespace AcmarkInvalidDocumentsLoader
 
 
 
-			Console.Write("gdfgf");
+			//Console.Write("gdfgf");
 
 
-			var neco = ConfigurationManager.AppSettings["MvcInvalidDocumentsWebLink"];
+			//var neco = ConfigurationManager.AppSettings["MvcInvalidDocumentsWebLink"];
 
 
-			// Grab the Scheduler instance from the Factory 
-			try
-			{
-				var schedulerFactory = new StdSchedulerFactory();
-				var scheduler = await schedulerFactory.GetScheduler();
+			//// Grab the Scheduler instance from the Factory 
+			//try
+			//{
+			//	var schedulerFactory = new StdSchedulerFactory();
+			//	var scheduler = await schedulerFactory.GetScheduler();
 
-				// Start the scheduler
-				await scheduler.Start();
+			//	// Start the scheduler
+			//	await scheduler.Start();
 
-				// Define the job
-				var job = JobBuilder.Create<HelloJob>()
-				    .WithIdentity("myJob", "myGroup")
-				    .Build();
+			//	// Define the job
+			//	var job = JobBuilder.Create<HelloJob>()
+			//	    .WithIdentity("myJob", "myGroup")
+			//	    .Build();
 
-				// Define the trigger to run every 5 seconds
-				var trigger = TriggerBuilder.Create()
-					 .WithIdentity("midnightTrigger", "myGroup")
-					 .WithDailyTimeIntervalSchedule(x => x
-					.OnEveryDay()
-					.StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(23, 5))
-					  )
-					   .Build();
+			//	// Define the trigger to run every 5 seconds
+			//	var trigger = TriggerBuilder.Create()
+			//		 .WithIdentity("midnightTrigger", "myGroup")
+			//		 .WithDailyTimeIntervalSchedule(x => x
+			//		.OnEveryDay()
+			//		.StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(23, 5))
+			//		  )
+			//		   .Build();
 
-				// Schedule the job with the trigger
-				await scheduler.ScheduleJob(job, trigger);
+			//	// Schedule the job with the trigger
+			//	await scheduler.ScheduleJob(job, trigger);
 
-				// Wait for the scheduled jobs to execute
-				await Task.Delay(TimeSpan.FromMinutes(1));
+			//	// Wait for the scheduled jobs to execute
+			//	await Task.Delay(TimeSpan.FromMinutes(1));
 
-				Console.WriteLine();
+			//	Console.WriteLine();
 
-				// Shutdown the scheduler
-				await scheduler.Shutdown();
-			}
-			catch (SchedulerException se)
-			{
-				Console.WriteLine(se);
-			}
+			//	// Shutdown the scheduler
+			//	await scheduler.Shutdown();
+			//}
+			//catch (SchedulerException se)
+			//{
+			//	Console.WriteLine(se);
+			//}
 
 			// and start it off
 			//scheduler.Start();
@@ -338,24 +407,31 @@ namespace AcmarkInvalidDocumentsLoader
 			return (DifferenceFileText.PlusFileContent, DifferenceFileText.MinusFileContent);
 		}
 
-		//private static bool IsFileContainTwoRows(string configuration)
-		//{
-		//	return configuration == ConfigurationLinks.OpVseFileLink || configuration == ConfigurationLinks.OpDifference
-		//				|| configuration == ConfigurationLinks.CdVseFileLink || configuration == ConfigurationLinks.CdDifference;
-		//}
-
 		public static Dictionary<string, DateTime?> InitTwoRowsFileDictionary(string FileContent)
 		{
-			Dictionary<string, DateTime?> splitFileContent = FileContent
-							.Split("\r\n")
-							.Select(item => item.Trim().Split(new[] { ';' }, 2))
-							.ToDictionary(parts => parts[0].Trim(),
-							parts =>
-							{
-								DateTime date;
-								return parts.Length > 1 && DateTime.TryParseExact(parts[1].Trim(), "d.M.yyyy",
-								CultureInfo.InvariantCulture, DateTimeStyles.None, out date) ? date : (DateTime?)null;
-							});
+			var lines = FileContent.Split("\r\n");
+
+			Dictionary<string, DateTime?> splitFileContent = new Dictionary<string, DateTime?>();
+
+			for (int i = 0; i < lines.Length-1; i++)
+			{
+				var parts = lines[i].Trim().Split(new[] { ';' }, 2);
+
+				string key = parts[0].Trim();
+				DateTime? value = null;
+
+				if (parts.Length > 1)
+				{
+					DateTime date;
+					if (DateTime.TryParseExact(parts[1].Trim(), "d.M.yyyy",
+					    CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+					{
+						value = date;
+					}
+				}
+
+				splitFileContent.Add(key, value);
+			}
 
 			return splitFileContent;
 		}
@@ -365,7 +441,7 @@ namespace AcmarkInvalidDocumentsLoader
 
 			var lines = FileContent.Split("\r\n");
 
-			for (int i = 0; i < lines.Length; i++)
+			for (int i = 0; i < lines.Length - 1; i++)
 			{
 				var parts = lines[i].Split(';');
 				var document = new ValueListInvalidDocuments

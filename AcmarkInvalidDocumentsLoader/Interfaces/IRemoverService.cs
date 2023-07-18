@@ -9,6 +9,6 @@ namespace AcmarkInvalidDocumentsLoader.Interfaces
 {
 	internal interface IRemoverService
 	{
-		Task<Response> RemoveContentAsync(string documentId);
+		Task RemoveContentAsync(string documentId);
 	}
 }

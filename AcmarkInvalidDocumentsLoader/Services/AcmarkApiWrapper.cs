@@ -2,6 +2,7 @@
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -24,12 +25,9 @@ namespace AcmarkInvalidDocumentsLoader.Services
 
 		public AcmarkApiWrapper(string baseUrl)
 		{
-			//			System.Net.ServicePointManager.ServerCertificateValidationCallback +=
-			//(sender, certificate, chain, sslPolicyErrors) => true;
-
 			var options = new RestClientOptions(baseUrl)
 			{
-				Credentials = new NetworkCredential("acmark\\tkachenko", "wWGwqgov5hkQ"),
+				Credentials = new NetworkCredential(ConfigurationManager.AppSettings["AcmarkLogin"], ConfigurationManager.AppSettings["AcmarkPassword"]),
 
 				UseDefaultCredentials = false,
 
@@ -65,9 +63,11 @@ namespace AcmarkInvalidDocumentsLoader.Services
 
 				Console.Write(responce.Content.ToString());
 			}
-			catch
+			catch (Exception ex)
 			{
-				Console.WriteLine($"Element failed to add {nameof(documentNumber)}:{documentNumber} not found for deletion ");
+				Console.WriteLine($"Failed to add element with document number: {documentNumber}. Error: {ex.Message}");
+
+				//ERROR LOG TO ACMARK API
 
 				Semaphore.Release();
 			}
@@ -75,16 +75,25 @@ namespace AcmarkInvalidDocumentsLoader.Services
 			{
 				Semaphore.Release();
 			}
-
-			//return await Client.PostAsync(request);
 		}
 		public Dictionary<string, ValueListInvalidDocuments> GetAllDocuments()
 		{
-			var request = new RestRequest(AcmarkApiWrapper.ConstInvalidDocumentsApiPoint);
+			RootListInvalidDocuments entities = null;
+			try
+			{
+				var request = new RestRequest(AcmarkApiWrapper.ConstInvalidDocumentsApiPoint);
 
-			var responce = Client.Get(request);
+				var responce = Client.Get(request);
 
-			RootListInvalidDocuments entities = JsonSerializer.Deserialize<RootListInvalidDocuments>(responce.Content);
+				entities = JsonSerializer.Deserialize<RootListInvalidDocuments>(responce.Content);
+			}
+
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Failed to get all elements. Error: {ex.Message}");
+
+				//ERROR LOG TO ACMARK API
+			}
 
 			return entities.value.ToDictionary(item => item.acm_listinvaliddocumentid, item => item);
 		}
@@ -101,9 +110,12 @@ namespace AcmarkInvalidDocumentsLoader.Services
 
 				Console.Write(responce.Content.ToString());
 			}
-			catch
+			catch (Exception ex)
 			{
-				Console.WriteLine($"Item {nameof(documentId)}:{documentId} not found for deletion ");
+				Console.WriteLine($"Failed to delete the document with ID: {documentId},this item was not found, please check if this item exists in the database. Error: {ex.Message}");
+
+				//ERROR LOG TO ACMARK API
+
 				Semaphore.Release();
 			}
 			finally
