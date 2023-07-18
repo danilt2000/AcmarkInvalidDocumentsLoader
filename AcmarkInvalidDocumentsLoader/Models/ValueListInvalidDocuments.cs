@@ -16,7 +16,7 @@ namespace AcmarkInvalidDocumentsLoader.Models
 		public int statecode { get; set; }
 		public int statuscode { get; set; }
 		public string _createdby_value { get; set; }
-		public int timezoneruleversionnumber { get; set; }
+		public int? timezoneruleversionnumber { get; set; }
 		public int acm_documenttype { get; set; }
 		public string _ownerid_value { get; set; }
 		public string acm_batch { get; set; }
@@ -26,7 +26,7 @@ namespace AcmarkInvalidDocumentsLoader.Models
 		public int versionnumber { get; set; }
 		public string acm_listinvaliddocumentid { get; set; }
 		public DateTime createdon { get; set; }
-		public DateTime acm_invalidationdate { get; set; }
+		public DateTime? acm_invalidationdate { get; set; }
 		public object _modifiedonbehalfby_value { get; set; }
 		public object importsequencenumber { get; set; }
 		public object _createdonbehalfby_value { get; set; }

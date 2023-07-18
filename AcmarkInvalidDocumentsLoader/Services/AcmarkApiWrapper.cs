@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AcmarkInvalidDocumentsLoader.Services
 {
@@ -44,7 +45,10 @@ namespace AcmarkInvalidDocumentsLoader.Services
 		{
 			await Semaphore.WaitAsync();
 
-			invalidationdate = DateTime.SpecifyKind((DateTime)invalidationdate, DateTimeKind.Local);
+			DateTime? selectedDate = DateTime.SpecifyKind((DateTime)invalidationdate, DateTimeKind.Local);
+
+			if (invalidationdate == DateTime.MinValue)
+				selectedDate = null;
 
 			try
 			{
@@ -54,7 +58,7 @@ namespace AcmarkInvalidDocumentsLoader.Services
 					 acm_documentnumber = documentNumber,
 					 acm_batch = batch,
 					 acm_documenttype = documentType,
-					 acm_invalidationdate = invalidationdate
+					 acm_invalidationdate = selectedDate
 				 });
 
 				var responce = await Client.PostAsync(request);
@@ -78,9 +82,9 @@ namespace AcmarkInvalidDocumentsLoader.Services
 		{
 			var request = new RestRequest(AcmarkApiWrapper.ConstInvalidDocumentsApiPoint);
 
-			var test = Client.Get(request);
+			var responce = Client.Get(request);
 
-			RootListInvalidDocuments entities = JsonSerializer.Deserialize<RootListInvalidDocuments>(test.Content);
+			RootListInvalidDocuments entities = JsonSerializer.Deserialize<RootListInvalidDocuments>(responce.Content);
 
 			return entities.value.ToDictionary(item => item.acm_listinvaliddocumentid, item => item);
 		}
