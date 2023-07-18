@@ -36,7 +36,7 @@ namespace AcmarkInvalidDocumentsLoader.Services
 			throw new HttpRequestException();
 		}
 
-		private async Task<(string? PlusFileContent, string? MinusFileContent)> DownloadFileContentAsync(string fileDocumentHref, bool isDownloadDifferenceFiles)
+		public async Task<(string? PlusFileContent, string? MinusFileContent)> DownloadFileContentAsync(string fileDocumentHref, bool isDownloadDifferenceFiles)
 		{
 			string? plusFileContent = null;
 

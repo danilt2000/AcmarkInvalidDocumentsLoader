@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Security.Authentication;
 using System.Text;
 using System.Text.Json;
@@ -59,7 +61,12 @@ namespace AcmarkInvalidDocumentsLoader.Services
 
 				Console.Write(responce.Content.ToString());
 			}
+			catch
+			{
+				Console.WriteLine($"Element failed to add {nameof(documentNumber)}:{documentNumber} not found for deletion ");
 
+				Semaphore.Release();
+			}
 			finally
 			{
 				Semaphore.Release();
@@ -90,7 +97,11 @@ namespace AcmarkInvalidDocumentsLoader.Services
 
 				Console.Write(responce.Content.ToString());
 			}
-
+			catch
+			{
+				Console.WriteLine($"Item {nameof(documentId)}:{documentId} not found for deletion ");
+				Semaphore.Release();
+			}
 			finally
 			{
 				Semaphore.Release();

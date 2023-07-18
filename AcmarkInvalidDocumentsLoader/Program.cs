@@ -29,14 +29,51 @@ namespace AcmarkInvalidDocumentsLoader
 		{
 			PerformanceMonitor.Start();
 
+			//Console.WriteLine("\n\n    ===================================================");
+			//Console.WriteLine($"         Starting download of '{ConfigurationLinks.MvcInvalidDocumentsWebLink}'");
+			//Console.WriteLine($"         Source: {nameof(ConfigurationLinks.OpVseFileLink)}");
+			//Console.WriteLine("    ===================================================");
+
+			//Dictionary<string, DateTime?> splitOpVseContent = await DownloadSingleFile(ConfigurationLinks.OpVseFileLink.ToString());
+
+			//UploadFile(splitOpVseContent);
+
+			//Task.WaitAll(Tasks);
+
+			//Console.WriteLine($"         Upload is over");
+			//Console.WriteLine($"         Time spent '{PerformanceMonitor.Elapsed}'");
+			//Console.WriteLine("    ===================================================\n\n");
+
+			//PerformanceMonitor.Restart();
+
+			//Console.WriteLine("\n\n    ===================================================");
+			//Console.WriteLine($"         Starting download of '{ConfigurationLinks.MvcInvalidDocumentsWebLink}'");
+			//Console.WriteLine($"         Source: {nameof(ConfigurationLinks.OpDifference)}");
+			//Console.WriteLine("    ===================================================");
+
+			//var entities = await DownloadDifferenceFile(ConfigurationLinks.OpDifference.ToString());
+
+			//UploadFile(entities.splitPlusFileContent);
+
+			//Task.WaitAll(Tasks);
+
+			//foreach (KeyValuePair<string, DateTime?> entity in entities.splitMinusFileContent)
+			//{
+			//	await DataTransferClient.RemoveContentAsync(entity.Key);
+			//}
+
+			//Console.WriteLine($"         Upload and deleting is over");
+			//Console.WriteLine($"         Time spent '{PerformanceMonitor.Elapsed}'");
+			//Console.WriteLine("    ===================================================\n\n");
+
 			Console.WriteLine("\n\n    ===================================================");
 			Console.WriteLine($"         Starting download of '{ConfigurationLinks.MvcInvalidDocumentsWebLink}'");
-			Console.WriteLine($"         Source: {nameof(ConfigurationLinks.OpVseFileLink)}");
+			Console.WriteLine($"         Source: {nameof(ConfigurationLinks.OpsVseFileLink)}");
 			Console.WriteLine("    ===================================================");
 
-			Dictionary<string, DateTime?> splitOpVseContent = await DownloadSingleFile(ConfigurationLinks.OpVseFileLink.ToString());
+			Dictionary<string, DateTime?> splitOpVseContent = await DownloadSingleFile(ConfigurationLinks.OpsVseFileLink.ToString());
 
-			UploadSingleFile(splitOpVseContent);
+			UploadFile(splitOpVseContent);
 
 			Task.WaitAll(Tasks);
 
@@ -44,37 +81,40 @@ namespace AcmarkInvalidDocumentsLoader
 			Console.WriteLine($"         Time spent '{PerformanceMonitor.Elapsed}'");
 			Console.WriteLine("    ===================================================\n\n");
 
-			//PerformanceMonitor.Restart();
+			PerformanceMonitor.Restart();
 
 
 
 
-			Stopwatch stopWatch = new Stopwatch();
 
 
 
 
-			stopWatch.Start();
 
 
-			AcmarkDataTransferClient acmarkDataTransferClient = new AcmarkDataTransferClient(ConfigurationLinks.DevAcmarkEuApiLink);
 
 
-			var entities = acmarkDataTransferClient.ApiWrapper.GetAllDocuments();
 
-			Task[] tasks = new Task[entities.Count];
 
-			//Task[] tasks = new Task[100];
-			foreach (KeyValuePair<string, ValueListInvalidDocuments> entity in entities)
-			{
-				await acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entity.Key);
 
-				// 'entry.Key' - ключ текущего элемента
-				// 'entry.Value' - значение текущего элемента
-				//	//tasks[i] = Task.Run(() => acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entities.value[i].acm_listinvaliddocumentid));
 
-				// Здесь можно добавить код для работы с ключом и значением.
-			}
+
+
+			//var entities = acmarkDataTransferClient.ApiWrapper.GetAllDocuments();
+
+			//Task[] tasks = new Task[entities.Count];
+
+			////Task[] tasks = new Task[100];
+			//foreach (KeyValuePair<string, ValueListInvalidDocuments> entity in entities)
+			//{
+			//	await acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entity.Key);
+
+			//	// 'entry.Key' - ключ текущего элемента
+			//	// 'entry.Value' - значение текущего элемента
+			//	//	//tasks[i] = Task.Run(() => acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entities.value[i].acm_listinvaliddocumentid));
+
+			//	// Здесь можно добавить код для работы с ключом и значением.
+			//}
 			//for (int i = 0; i < entities.value.Count; i++)
 			//{
 			//	//tasks[i] = Task.Run(() => acmarkDataTransferClient.ApiWrapper.RemoveDocumentAsync(entities.value[i].acm_listinvaliddocumentid));
@@ -95,7 +135,6 @@ namespace AcmarkInvalidDocumentsLoader
 
 
 
-			stopWatch.Stop();
 
 			Console.Write("gdfgf");
 
@@ -210,11 +249,19 @@ namespace AcmarkInvalidDocumentsLoader
 			//Console.WriteLine(MvcLink);
 		}
 
-		private static void UploadSingleFile(Dictionary<string, DateTime?> splitOpVseContent)
+		private static async Task DeleteAllInvalidDocuments()
+		{
+			var entit41241ies = DataTransferClient.GetAllDocuments();
+
+			foreach (KeyValuePair<string, ValueListInvalidDocuments> entity in entit41241ies)
+			{
+				await DataTransferClient.RemoveContentAsync(entity.Key);
+			}
+		}
+
+		public static void UploadFile(Dictionary<string, DateTime?> splitOpVseContent)
 		{
 			int index = 0;
-
-			var temp = DateTime.Now;
 
 			Tasks = new Task[splitOpVseContent.Count];
 
@@ -226,11 +273,29 @@ namespace AcmarkInvalidDocumentsLoader
 			}
 		}
 
-		private static async Task<Dictionary<string, DateTime?>> DownloadSingleFile(string configuration)
+		public static async Task<Dictionary<string, DateTime?>> DownloadSingleFile(string configuration)
 		{
-			var OpVseFileText = await DownloadService.DownloadFileContentAsync($"{configuration}");
+			var FileText = await DownloadService.DownloadFileContentAsync(configuration);
 
-			Dictionary<string, DateTime?> splitOpVseContent = OpVseFileText
+			Dictionary<string, DateTime?> splitContent = InitFileDictionary(FileText);
+
+			return splitContent;
+		}
+
+		public static async Task<(Dictionary<string, DateTime?> splitPlusFileContent, Dictionary<string, DateTime?> splitMinusFileContent)> DownloadDifferenceFile(string configuration)
+		{
+			var DifferenceFileText = await DownloadService.DownloadFileContentAsync(configuration, true);
+
+			Dictionary<string, DateTime?> splitPlusFileContent = InitFileDictionary(DifferenceFileText.PlusFileContent);
+
+			Dictionary<string, DateTime?> splitMinusFileContent = InitFileDictionary(DifferenceFileText.MinusFileContent);
+
+			return (splitPlusFileContent, splitMinusFileContent);
+		}
+
+		public static Dictionary<string, DateTime?> InitFileDictionary(string FileContent)
+		{
+			Dictionary<string, DateTime?> splitFileContent = FileContent
 							.Split("\r\n")
 							.Select(item => item.Trim().Split(new[] { ';' }, 2))
 							.ToDictionary(parts => parts[0].Trim(),
@@ -240,7 +305,8 @@ namespace AcmarkInvalidDocumentsLoader
 								return parts.Length > 1 && DateTime.TryParseExact(parts[1].Trim(), "d.M.yyyy",
 								CultureInfo.InvariantCulture, DateTimeStyles.None, out date) ? date : (DateTime?)null;
 							});
-			return splitOpVseContent;
+
+			return splitFileContent;
 		}
 
 		static MvcrDownloader DownloadService
