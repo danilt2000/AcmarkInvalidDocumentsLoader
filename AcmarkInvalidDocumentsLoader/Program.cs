@@ -95,6 +95,8 @@ namespace AcmarkInvalidDocumentsLoader
 			//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 			//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
+			//PerformanceMonitor.Restart();
+			
 			//Console.WriteLine("\n\n    ===================================================");
 			//Console.WriteLine($"         Starting download of '{ConfigurationLinks.MvcInvalidDocumentsWebLink}'");
 			//Console.WriteLine($"         Source: {nameof(ConfigurationLinks.OpsVseFileLink)}");
