@@ -22,50 +22,29 @@ namespace AcmarkInvalidDocumentsLoader
 	internal class Program
 	{
 		//private static Random random = new Random();
-		private static Stopwatch StopWatch = new Stopwatch();
+		private static Stopwatch PerformanceMonitor = new Stopwatch();
 		public static Task[] Tasks { get; set; }
-		//public static Task[] Tasks = new Task[100];
 
 		static async Task Main(string[] args)
 		{
+			PerformanceMonitor.Start();
 
+			Console.WriteLine("\n\n    ===================================================");
+			Console.WriteLine($"         Starting download of '{ConfigurationLinks.MvcInvalidDocumentsWebLink}'");
+			Console.WriteLine($"         Source: {nameof(ConfigurationLinks.OpVseFileLink)}");
+			Console.WriteLine("    ===================================================");
 
+			Dictionary<string, DateTime?> splitOpVseContent = await DownloadSingleFile(ConfigurationLinks.OpVseFileLink.ToString());
 
-			Console.WriteLine("\n\n===================================================");
-			Console.WriteLine($"======   Starting download of '{ConfigurationLinks.OpVseFileLink}'   ======");
-			Console.WriteLine($"======   Source: {ConfigurationLinks.OpVseFileLink}                 ======");
-			Console.WriteLine("===================================================\n\n");
-
-			var OpVseFileText = await DownloadService.DownloadFileContentAsync($"{ConfigurationLinks.OpVseFileLink}");
-
-			Dictionary<string, DateTime?> splitOpVseContent = OpVseFileText
-							.Split("\r\n")
-							.Select(item => item.Trim().Split(new[] { ';' }, 2))
-							.ToDictionary(parts => parts[0].Trim(),
-							parts =>
-							{
-								DateTime date;
-								return parts.Length > 1 && DateTime.TryParseExact(parts[1].Trim(), "d.M.yyyy",
-								CultureInfo.InvariantCulture, DateTimeStyles.None, out date) ? date : (DateTime?)null;
-							});
-			int index = 0;
-			var temp = DateTime.Now;
-			Tasks = new Task[splitOpVseContent.Count];
-
-			foreach (KeyValuePair<string, DateTime?> entity in splitOpVseContent)
-			{
-				//Tasks[index] = Task.Run(() => DataTransferClient.UploadContentAsync(entity.Key, string.Empty, DocumentType.OpWithoutSeries, entity.Value));
-				await DataTransferClient.UploadContentAsync(entity.Key, string.Empty, DocumentType.OpWithoutSeries, entity.Value);
-
-				index++;
-			}
+			UploadSingleFile(splitOpVseContent);
 
 			Task.WaitAll(Tasks);
 
-			Console.WriteLine("\n\n===================================================");
-			Console.WriteLine($"======   Successfully downloaded '{ConfigurationLinks.OpVseFileLink}'  ======");
-			Console.WriteLine($"======   from: {ConfigurationLinks.OpVseFileLink}                    ======");
-			Console.WriteLine("===================================================\n\n");
+			Console.WriteLine($"         Upload is over");
+			Console.WriteLine($"         Time spent '{PerformanceMonitor.Elapsed}'");
+			Console.WriteLine("    ===================================================\n\n");
+
+			//PerformanceMonitor.Restart();
 
 
 
@@ -229,6 +208,39 @@ namespace AcmarkInvalidDocumentsLoader
 			//string cdDifference = ConfigurationManager.AppSettings["CdDifference"];
 
 			//Console.WriteLine(MvcLink);
+		}
+
+		private static void UploadSingleFile(Dictionary<string, DateTime?> splitOpVseContent)
+		{
+			int index = 0;
+
+			var temp = DateTime.Now;
+
+			Tasks = new Task[splitOpVseContent.Count];
+
+			foreach (KeyValuePair<string, DateTime?> entity in splitOpVseContent)
+			{
+				Tasks[index] = Task.Run(() => DataTransferClient.UploadContentAsync(entity.Key, string.Empty, DocumentType.OpWithoutSeries, entity.Value));
+
+				index++;
+			}
+		}
+
+		private static async Task<Dictionary<string, DateTime?>> DownloadSingleFile(string configuration)
+		{
+			var OpVseFileText = await DownloadService.DownloadFileContentAsync($"{configuration}");
+
+			Dictionary<string, DateTime?> splitOpVseContent = OpVseFileText
+							.Split("\r\n")
+							.Select(item => item.Trim().Split(new[] { ';' }, 2))
+							.ToDictionary(parts => parts[0].Trim(),
+							parts =>
+							{
+								DateTime date;
+								return parts.Length > 1 && DateTime.TryParseExact(parts[1].Trim(), "d.M.yyyy",
+								CultureInfo.InvariantCulture, DateTimeStyles.None, out date) ? date : (DateTime?)null;
+							});
+			return splitOpVseContent;
 		}
 
 		static MvcrDownloader DownloadService

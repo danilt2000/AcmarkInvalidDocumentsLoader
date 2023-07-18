@@ -38,11 +38,11 @@ namespace AcmarkInvalidDocumentsLoader.Services
 			this.Client = new RestClient(options);
 		}
 
-		public async Task AddDocumentAsync(string documentNumber, string batch, string documentType, DateTime invalidationdate)
+		public async Task AddDocumentAsync(string documentNumber, string batch, string documentType, DateTime? invalidationdate)
 		{
 			await Semaphore.WaitAsync();
-			var temp = DateTime.Now;
-			invalidationdate = DateTime.SpecifyKind(invalidationdate, DateTimeKind.Local);
+
+			invalidationdate = DateTime.SpecifyKind((DateTime)invalidationdate, DateTimeKind.Local);
 
 			try
 			{

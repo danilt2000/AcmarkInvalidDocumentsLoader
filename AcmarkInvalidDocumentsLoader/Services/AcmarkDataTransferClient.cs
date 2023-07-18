@@ -19,10 +19,8 @@ namespace AcmarkInvalidDocumentsLoader.Services
 		}
 		public async Task<Response> UploadContentAsync(string documentNumber, string batch, string documentType, DateTime? invalidationdate)
 		{
-			if (invalidationdate == null)
-				invalidationdate = DateTime.MinValue;
 
-			await ApiWrapper.AddDocumentAsync(documentNumber, batch, documentType, (DateTime)invalidationdate);
+			await ApiWrapper.AddDocumentAsync(documentNumber, batch, documentType, invalidationdate);
 
 			//SOME CONTOLLING DATE AND LOGING IF NULL
 
