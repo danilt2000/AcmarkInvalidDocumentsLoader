@@ -112,7 +112,7 @@ namespace AcmarkInvalidDocumentsLoader.Services
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Failed to delete the document with ID: {documentId},this item was not found, please check if this item exists in the database. Error: {ex.Message}");
+				Console.WriteLine($"This item was not found {documentId}, please check if this item exists in the database. Error: {ex.Message}");
 
 				//ERROR LOG TO ACMARK API
 
